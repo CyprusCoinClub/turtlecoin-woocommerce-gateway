@@ -72,7 +72,7 @@
     <?php foreach($details['txs'] as $tx): ?>
     <tr>
         <td>
-            <a href="https://turtle.land/?hash=<?php echo $tx['txid']; ?>#blockchain_transaction" target="_blank"><?php echo $tx['txid']; ?></a>
+            <a href="http://explorer.mycypruscoin.com/?hash=<?php echo $tx['txid']; ?>#blockchain_transaction" target="_blank"><?php echo $tx['txid']; ?></a>
         </td>
         <td><?php echo $tx['height']; ?></td>
         <td><?php echo sprintf(CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_SPRINTF, $tx['amount'] / CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW); ?> XCY</td>
