@@ -1,22 +1,22 @@
 <?php
 /*
- * Main Gateway of TurtleCoin using either a local daemon or the explorer
+ * Main Gateway of CyprusCoin using either a local daemon or the explorer
  * Authors: Serhack, cryptochangements, mosu-forge
  */
 
 defined( 'ABSPATH' ) || exit;
 
-require_once('class-turtlecoin-service.php');
+require_once('class-cypruscoin-service.php');
 
-class TurtleCoin_Gateway extends WC_Payment_Gateway
+class CyprusCoin_Gateway extends WC_Payment_Gateway
 {
-    private static $_id = 'turtlecoin_gateway';
-    private static $_title = 'TurtleCoin Gateway';
-    private static $_method_title = 'TurtleCoin Gateway';
-    private static $_method_description = 'TurtleCoin Gateway Plug-in for WooCommerce.';
+    private static $_id = 'cypruscoin_gateway';
+    private static $_title = 'CyprusCoin Gateway';
+    private static $_method_title = 'CyprusCoin Gateway';
+    private static $_method_description = 'CyprusCoin Gateway Plug-in for WooCommerce.';
     private static $_errors = [];
 
-    private static $discount = false;
+    private static $discount = false;cypruscoin
     private static $valid_time = null;
     private static $confirms = null;
     private static $address = null;
@@ -24,10 +24,10 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
     private static $port = null;
     private static $password = null;
     private static $show_qr = false;
-    private static $use_turtlecoin_price = false;
-    private static $use_turtlecoin_price_decimals = TURTLECOIN_GATEWAY_ATOMIC_UNITS;
+    private static $use_cypruscoin_price = false;
+    private static $use_cypruscoin_price_decimals = CYPRUSCOIN_GATEWAY_ATOMIC_UNITS;
 
-    private static $turtlecoin_service;
+    private static $cypruscoin_service;
     private static $log;
 
     private static $rates = array();
@@ -36,14 +36,14 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
 
     public function get_icon()
     {
-        return apply_filters('woocommerce_gateway_icon', '<img src="'.TURTLECOIN_GATEWAY_PLUGIN_URL.'assets/images/turtlecoin-icon.png"/>', $this->id);
+        return apply_filters('woocommerce_gateway_icon', '<img src="'.CYPRUSCOIN_GATEWAY_PLUGIN_URL.'assets/images/cypruscoin-icon.png"/>', $this->id);
     }
 
     function __construct($add_action=true)
     {
         $this->id = self::$_id;
-        $this->method_title = __(self::$_method_title, 'turtlecoin_gateway');
-        $this->method_description = __(self::$_method_description, 'turtlecoin_gateway');
+        $this->method_title = __(self::$_method_title, 'cypruscoin_gateway');
+        $this->method_description = __(self::$_method_description, 'cypruscoin_gateway');
         $this->has_fields = false;
         $this->supports = array(
             'products',
@@ -67,35 +67,35 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         self::$discount = $this->settings['discount'];
         self::$valid_time = $this->settings['valid_time'];
         self::$confirms = $this->settings['confirms'];
-        self::$address = $this->settings['turtlecoin_address'];
+        self::$address = $this->settings['cypruscoin_address'];
         self::$host = $this->settings['daemon_host'];
         self::$port = $this->settings['daemon_port'];
         self::$password = $this->settings['daemon_password'];
         self::$show_qr = $this->settings['show_qr'] == 'yes';
-        self::$use_turtlecoin_price = $this->settings['use_turtlecoin_price'] == 'yes';
-        self::$use_turtlecoin_price_decimals = $this->settings['use_turtlecoin_price_decimals'];
+        self::$use_cypruscoin_price = $this->settings['use_cypruscoin_price'] == 'yes';
+        self::$use_cypruscoin_price_decimals = $this->settings['use_cypruscoin_price_decimals'];
 
-        $explorer_url = TURTLECOIN_GATEWAY_EXPLORER_URL;
+        $explorer_url = CYPRUSCOIN_GATEWAY_EXPLORER_URL;
 
         if($add_action)
             add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this, 'process_admin_options'));
 
         // Helper functions
-        self::$turtlecoin_service = new Turtlecoin_Library(self::$host, self::$port, self::$password);
+        self::$cypruscoin_service = new Cypruscoin_Library(self::$host, self::$port, self::$password);
         self::$log = new WC_Logger();
     }
 
     public function init_form_fields()
     {
-        $this->form_fields = include 'admin/turtlecoin-gateway-admin-settings.php';
+        $this->form_fields = include 'admin/cypruscoin-gateway-admin-settings.php';
     }
 
-    public function validate_turtlecoin_address_field($key,$address)
+    public function validate_cypruscoin_address_field($key,$address)
     {
 
-        if (strlen($address) == 99 && substr($address, 0, 4) == 'TRTL')
+        if (strlen($address) == 99 && substr($address, 0, 4) == 'XCY')
             return $address;
-        self::$_errors[] = 'TRTL address is invalid';
+        self::$_errors[] = 'XCY address is invalid';
 
         return $address;
     }
@@ -120,7 +120,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
 
         $settings_html = $this->generate_settings_html(array(), false);
         $errors = array_merge(self::$_errors, $this->admin_php_module_check());
-        include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/admin/settings-page.php';
+        include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/admin/settings-page.php';
     }
 
     public static function admin_balance_info()
@@ -132,12 +132,12 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                 'unlocked_balance' => 'Not Available',
             );
         }
-        $wallet_amount = self::$turtlecoin_service->getBalance();
-        $height = self::$turtlecoin_service->getHeight();
+        $wallet_amount = self::$cypruscoin_service->getBalance();
+        $height = self::$cypruscoin_service->getHeight();
 
         if (!isset($wallet_amount)) {
-            self::$_errors[] = 'Cannot connect to turtlecoin-wallet-rpc';
-            self::$log->add('TurtleCoin_Payments', '[ERROR] Cannot connect to turtlecoin-wallet-rpc');
+            self::$_errors[] = 'Cannot connect to cypruscoin-wallet-rpc';
+            self::$log->add('CyprusCoin_Payments', '[ERROR] Cannot connect to cypruscoin-wallet-rpc');
             return array(
                 'height' => 'Not Available',
                 'balance' => 'Not Available',
@@ -146,8 +146,8 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         } else {
             return array(
                 'height' => $height,
-                'balance' => self::format_turtlecoin($wallet_amount['lockedAmount']).' TRTL',
-                'unlocked_balance' => self::format_turtlecoin($wallet_amount['availableBalance']).' TRTL'
+                'balance' => self::format_cypruscoin($wallet_amount['lockedAmount']).' XCY',
+                'unlocked_balance' => self::format_cypruscoin($wallet_amount['availableBalance']).' XCY'
             );
         }
     }
@@ -163,7 +163,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         global $wpdb;
-        $table_name = $wpdb->prefix.'turtlecoin_gateway_quotes';
+        $table_name = $wpdb->prefix.'cypruscoin_gateway_quotes';
 
         $order = wc_get_order($order_id);
 
@@ -177,20 +177,20 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         $currency = $order->get_currency();
         $rate = self::get_live_rate($currency);
         $fiat_amount = $order->get_total('');
-        $turtlecoin_amount = 1e8 * $fiat_amount / $rate;
+        $cypruscoin_amount = 1e8 * $fiat_amount / $rate;
 
         if(self::$discount)
-            $turtlecoin_amount = $turtlecoin_amount - $turtlecoin_amount * self::$discount / 100;
+            $cypruscoin_amount = $cypruscoin_amount - $cypruscoin_amount * self::$discount / 100;
 
-        // only use whole numbers for TRTL
-        $turtlecoin_amount = intval($turtlecoin_amount);
-        
-        $turtlecoin_amount = intval($turtlecoin_amount * TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW);
+        // only use whole numbers for XCY
+        $cypruscoin_amount = intval($cypruscoin_amount);
 
-        $query = $wpdb->prepare("INSERT INTO $table_name (order_id, payment_id, currency, rate, amount) VALUES (%d, %s, %s, %d, %d)", array($order_id, $payment_id, $currency, $rate, $turtlecoin_amount));
+        $cypruscoin_amount = intval($cypruscoin_amount * CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW);
+
+        $query = $wpdb->prepare("INSERT INTO $table_name (order_id, payment_id, currency, rate, amount) VALUES (%d, %s, %s, %d, %d)", array($order_id, $payment_id, $currency, $rate, $cypruscoin_amount));
         $wpdb->query($query);
 
-        $order->update_status('on-hold', __('Awaiting offline payment', 'turtlecoin_gateway'));
+        $order->update_status('on-hold', __('Awaiting offline payment', 'cypruscoin_gateway'));
         $order->reduce_order_stock(); // Reduce stock levels
         WC()->cart->empty_cart(); // Remove cart
 
@@ -209,17 +209,17 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         global $wpdb;
 
         // Get Live Price
-        $TRTL_link = 'https://tradeogre.com/api/v1/ticker/ltc-trtl';
+        $XCY_link = 'https://p2pb2b.io/api/v1/public/ticker?market=XCY_BTC';
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => $TRTL_link,
+            CURLOPT_URL => $XCY_link,
         ));
         $resp = curl_exec($curl);
         curl_close($curl);
-        $price_trtl = json_decode($resp, true);
-        
-        $api_link = 'https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD&extraParams=trtl_woocommerce';
+        $price_xcy = json_decode($resp, true);
+
+        $api_link = 'https://p2pb2b.io/api/v1/public/ticker?market=XCY_USD';
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
@@ -229,29 +229,29 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         curl_close($curl);
         $price = json_decode($resp, true);
 
-        if($price_trtl['success'] === true && isset($price_trtl['bid'])) {
-            if(isset($price['USD'])) {
-                $table_name = $wpdb->prefix.'turtlecoin_gateway_live_rates';
+        if($price_xcy['success'] === true && isset($price_xcy['bid'])) {
+            if(isset($price['last'])) {
+                $table_name = $wpdb->prefix.'cypruscoin_gateway_live_rates';
 
                 // shift decimal eight places for precise int storage
-                $rate_usd = intval($price['USD'] * $price_trtl['bid'] * 1e8);
+                $rate_usd = intval($price['last'] * $price_xcy['bid'] * 1e8);
                 $query = $wpdb->prepare("INSERT INTO $table_name (currency, rate, updated) VALUES (%s, %d, NOW()) ON DUPLICATE KEY UPDATE rate=%d, updated=NOW()", array('USD', $rate_usd, $rate_usd));
                 $wpdb->query($query);
 
-                $rate_ltc = round($price_trtl['bid'] * 1e8);
-                $query = $wpdb->prepare("INSERT INTO $table_name (currency, rate, updated) VALUES (%s, %d, NOW()) ON DUPLICATE KEY UPDATE rate=%d, updated=NOW()", array('LTC', $rate_ltc, $rate_ltc));
+                $rate_btc = round($price_xcy['bid'] * 1e8);
+                $query = $wpdb->prepare("INSERT INTO $table_name (currency, rate, updated) VALUES (%s, %d, NOW()) ON DUPLICATE KEY UPDATE rate=%d, updated=NOW()", array('BTC', $rate_btc, $rate_btc));
                 $wpdb->query($query);
-                
+
             }
-        } 
+        }
 
         // Get current network/wallet height
-        $height = self::$turtlecoin_service->getHeight();
-        set_transient('turtlecoin_gateway_network_height', $height);
+        $height = self::$cypruscoin_service->getHeight();
+        set_transient('cypruscoin_gateway_network_height', $height);
 
         // Get pending payments
-        $table_name_1 = $wpdb->prefix.'turtlecoin_gateway_quotes';
-        $table_name_2 = $wpdb->prefix.'turtlecoin_gateway_quotes_txids';
+        $table_name_1 = $wpdb->prefix.'cypruscoin_gateway_quotes';
+        $table_name_2 = $wpdb->prefix.'cypruscoin_gateway_quotes_txids';
 
         $query = $wpdb->prepare("SELECT *, $table_name_1.payment_id AS payment_id, $table_name_1.amount AS amount_total, $table_name_2.amount AS amount_paid, NOW() as now FROM $table_name_1 LEFT JOIN $table_name_2 ON $table_name_1.payment_id = $table_name_2.payment_id WHERE pending=1", array());
         $rows = $wpdb->get_results($query);
@@ -277,7 +277,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             $order_id = $quote->order_id;
             $order = wc_get_order($order_id);
             $payment_id = self::sanatize_id($quote->payment_id);
-            $amount_turtlecoin = $quote->amount_total;
+            $amount_cypruscoin = $quote->amount_total;
 
             $new_txs = self::check_payment_rpc($payment_id);
 
@@ -305,7 +305,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                 $heights[] = $tx->height;
             }
 
-            $paid = $amount_paid > $amount_turtlecoin - TURTLECOIN_GATEWAY_ATOMIC_UNIT_THRESHOLD;
+            $paid = $amount_paid > $amount_cypruscoin - CYPRUSCOIN_GATEWAY_ATOMIC_UNIT_THRESHOLD;
 
             if($paid) {
                 if(self::$confirms == 0) {
@@ -323,20 +323,20 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             }
 
             if($paid && $confirmed) {
-                self::$log->add('TurtleCoin_Payments', "[SUCCESS] Payment has been confirmed for order id $order_id and payment id $payment_id");
+                self::$log->add('CyprusCoin_Payments', "[SUCCESS] Payment has been confirmed for order id $order_id and payment id $payment_id");
                 $query = $wpdb->prepare("UPDATE $table_name_1 SET confirmed=1,paid=1,pending=0 WHERE payment_id=%s", array($payment_id));
                 $wpdb->query($query);
 
                 unset(self::$payment_details[$order_id]);
 
                 if(self::is_virtual_in_cart($order_id) == true){
-                    $order->update_status('completed', __('Payment has been received.', 'turtlecoin_gateway'));
+                    $order->update_status('completed', __('Payment has been received.', 'cypruscoin_gateway'));
                 } else {
-                    $order->update_status('processing', __('Payment has been received.', 'turtlecoin_gateway'));
+                    $order->update_status('processing', __('Payment has been received.', 'cypruscoin_gateway'));
                 }
 
             } else if($paid) {
-                self::$log->add('TurtleCoin_Payments', "[SUCCESS] Payment has been received for order id $order_id and payment id $payment_id");
+                self::$log->add('CyprusCoin_Payments', "[SUCCESS] Payment has been received for order id $order_id and payment id $payment_id");
                 $query = $wpdb->prepare("UPDATE $table_name_1 SET paid=1 WHERE payment_id=%s", array($payment_id));
                 $wpdb->query($query);
 
@@ -347,13 +347,13 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                 $timestamp_now = new DateTime($quote->now);
                 $order_age_seconds = $timestamp_now->getTimestamp() - $timestamp_created->getTimestamp();
                 if($order_age_seconds > self::$valid_time) {
-                    self::$log->add('TurtleCoin_Payments', "[FAILED] Payment has expired for order id $order_id and payment id $payment_id");
+                    self::$log->add('CyprusCoin_Payments', "[FAILED] Payment has expired for order id $order_id and payment id $payment_id");
                     $query = $wpdb->prepare("UPDATE $table_name_1 SET pending=0 WHERE payment_id=%s", array($payment_id));
                     $wpdb->query($query);
 
                     unset(self::$payment_details[$order_id]);
 
-                    $order->update_status('cancelled', __('Payment has expired.', 'turtlecoin_gateway'));
+                    $order->update_status('cancelled', __('Payment has expired.', 'cypruscoin_gateway'));
                 }
             }
         }
@@ -362,7 +362,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
     protected static function check_payment_rpc($payment_id)
     {
         $txs = array();
-        $payments = self::$turtlecoin_service->get_all_payments($payment_id);
+        $payments = self::$cypruscoin_service->get_all_payments($payment_id);
         foreach($payments as $payment) {
             $txs[] = array(
                 'amount' => $payment['amount'],
@@ -382,8 +382,8 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             return self::$payment_details[$order_id];
 
         global $wpdb;
-        $table_name_1 = $wpdb->prefix.'turtlecoin_gateway_quotes';
-        $table_name_2 = $wpdb->prefix.'turtlecoin_gateway_quotes_txids';
+        $table_name_1 = $wpdb->prefix.'cypruscoin_gateway_quotes';
+        $table_name_2 = $wpdb->prefix.'cypruscoin_gateway_quotes_txids';
         $query = $wpdb->prepare("SELECT *, $table_name_1.payment_id AS payment_id, $table_name_1.amount AS amount_total, $table_name_2.amount AS amount_paid, NOW() as now FROM $table_name_1 LEFT JOIN $table_name_2 ON $table_name_1.payment_id = $table_name_2.payment_id WHERE order_id=%d", array($order_id));
         $details = $wpdb->get_results($query);
         if (count($details)) {
@@ -397,7 +397,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                     'txid' => $tx->txid,
                     'height' => $tx->height,
                     'amount' => $tx->amount_paid,
-                    'amount_formatted' => self::format_turtlecoin($tx->amount_paid)
+                    'amount_formatted' => self::format_cypruscoin($tx->amount_paid)
                 );
                 $amount_paid += $tx->amount_paid;
                 $heights[] = $tx->height;
@@ -409,14 +409,14 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             });
 
             if(count($heights) && !in_array(0, $heights)) {
-                $height = get_transient('turtlecoin_gateway_network_height');
+                $height = get_transient('cypruscoin_gateway_network_height');
                 $highest_block = max($heights);
                 $confirms = $height - $highest_block;
                 $blocks_to_confirm = self::$confirms - $confirms;
             } else {
                 $blocks_to_confirm = self::$confirms;
             }
-            $time_to_confirm = self::format_seconds_to_time($blocks_to_confirm * TURTLECOIN_GATEWAY_DIFFICULTY_TARGET);
+            $time_to_confirm = self::format_seconds_to_time($blocks_to_confirm * CYPRUSCOIN_GATEWAY_DIFFICULTY_TARGET);
 
             $amount_total = $details[0]->amount_total;
             $amount_due = max(0, $amount_total - $amount_paid);
@@ -430,11 +430,11 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             $address = self::$address;
             $payment_id = self::sanatize_id($details[0]->payment_id);
 
-            $array_integrated_address = self::$turtlecoin_service->make_integrated_address($address, $payment_id);
+            $array_integrated_address = self::$cypruscoin_service->make_integrated_address($address, $payment_id);
             if (isset($array_integrated_address['integratedAddress'])) {
                 $integrated_addr = $array_integrated_address['integratedAddress'];
             } else {
-                self::$log->add('TurtleCoin_Gateway', '[ERROR] Unable get integrated address');
+                self::$log->add('CyprusCoin_Gateway', '[ERROR] Unable get integrated address');
                 return '[ERROR] Unable get integrated address';
             }
 
@@ -461,7 +461,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                 }
             }
 
-            $qrcode_uri = 'turtlecoin:'.$address.'?tx_amount='.$amount_due.'&tx_payment_id='.$payment_id;
+            $qrcode_uri = 'cypruscoin:'.$address.'?tx_amount='.$amount_due.'&tx_payment_id='.$payment_id;
             $my_order_url = wc_get_endpoint_url('view-order', $order_id, wc_get_page_permalink('myaccount'));
 
             $payment_details = array(
@@ -476,9 +476,9 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
                 'amount_total' => $amount_total,
                 'amount_paid' => $amount_paid,
                 'amount_due' => $amount_due,
-                'amount_total_formatted' => self::format_turtlecoin($amount_total),
-                'amount_paid_formatted' => self::format_turtlecoin($amount_paid),
-                'amount_due_formatted' => self::format_turtlecoin($amount_due),
+                'amount_total_formatted' => self::format_cypruscoin($amount_total),
+                'amount_paid_formatted' => self::format_cypruscoin($amount_paid),
+                'amount_due_formatted' => self::format_cypruscoin($amount_due),
                 'status' => $status,
                 'created' => $details[0]->created,
                 'order_age' => $order_age_seconds,
@@ -508,7 +508,7 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
             self::ajax_output(array('error' => '[ERROR] Order does not belong to this user'));
 
         if($order->get_payment_method() != self::$_id)
-            self::ajax_output(array('error' => '[ERROR] Order not paid for with TurtleCoin'));
+            self::ajax_output(array('error' => '[ERROR] Order not paid for with CyprusCoin'));
 
         $details = self::get_payment_details($order);
         if(!is_array($details))
@@ -534,10 +534,10 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         $details = self::get_payment_details($order);
         if(!is_array($details)) {
             $error = $details;
-            include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/admin/order-history-error-page.php';
+            include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/admin/order-history-error-page.php';
             return;
         }
-        include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/admin/order-history-page.php';
+        include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/admin/order-history-page.php';
     }
 
     public static function customer_order_page($order)
@@ -556,13 +556,13 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         $details = self::get_payment_details($order_id);
         if(!is_array($details)) {
             $error = $details;
-            include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/customer/order-error-page.php';
+            include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/customer/order-error-page.php';
             return;
         }
         $show_qr = self::$show_qr;
         $details_json = json_encode($details);
-        $ajax_url = WC_AJAX::get_endpoint('turtlecoin_gateway_payment_details');
-        include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/customer/order-page.php';
+        $ajax_url = WC_AJAX::get_endpoint('cypruscoin_gateway_payment_details');
+        include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/customer/order-page.php';
     }
 
     public static function customer_order_email($order)
@@ -580,10 +580,10 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         $method_title = self::$_title;
         $details = self::get_payment_details($order_id);
         if(!is_array($details)) {
-            include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/customer/order-email-error-block.php';
+            include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/customer/order-email-error-block.php';
             return;
         }
-        include TURTLECOIN_GATEWAY_PLUGIN_DIR . '/templates/turtlecoin-gateway/customer/order-email-block.php';
+        include CYPRUSCOIN_GATEWAY_PLUGIN_DIR . '/templates/cypruscoin-gateway/customer/order-email-block.php';
     }
 
     public static function get_id()
@@ -596,23 +596,23 @@ class TurtleCoin_Gateway extends WC_Payment_Gateway
         return self::$show_qr;
     }
 
-    public static function use_turtlecoin_price()
+    public static function use_cypruscoin_price()
     {
-        return self::$use_turtlecoin_price;
+        return self::$use_cypruscoin_price;
     }
 
 
     public static function convert_wc_price($price, $currency)
     {
         $rate = self::get_live_rate($currency);
-        $turtlecoin_amount = intval(TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW * 1e8 * $price / $rate) / TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW;
-        $turtlecoin_amount_formatted = number_format($turtlecoin_amount, self::$use_turtlecoin_price_decimals);
+        $cypruscoin_amount = intval(CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW * 1e8 * $price / $rate) / CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW;
+        $cypruscoin_amount_formatted = number_format($cypruscoin_amount, self::$use_cypruscoin_price_decimals);
 
         return <<<HTML
             <span class="woocommerce-Price-amount amount" data-price="$price" data-currency="$currency"
         data-rate="$rate" data-rate-type="live">
-            $turtlecoin_amount_formatted
-            <span class="woocommerce-Price-currencySymbol">TRTL</span>
+            $cypruscoin_amount_formatted
+            <span class="woocommerce-Price-currencySymbol">XCY</span>
         </span>
 
 HTML;
@@ -636,14 +636,14 @@ HTML;
         $price = array_pop($matches);
         $currency = $payment_details['currency'];
         $rate = $payment_details['rate'];
-        $turtlecoin_amount = intval(TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW * 1e8 * $price / $rate) / TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW;
-        $turtlecoin_amount_formatted = number_format($turtlecoin_amount, self::$use_turtlecoin_price_decimals);
+        $cypruscoin_amount = intval(CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW * 1e8 * $price / $rate) / CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW;
+        $cypruscoin_amount_formatted = number_format($cypruscoin_amount, self::$use_cypruscoin_price_decimals);
 
         return <<<HTML
             <span class="woocommerce-Price-amount amount" data-price="$price" data-currency="$currency"
         data-rate="$rate" data-rate-type="fixed">
-            $turtlecoin_amount_formatted
-            <span class="woocommerce-Price-currencySymbol">TRTL</span>
+            $cypruscoin_amount_formatted
+            <span class="woocommerce-Price-currencySymbol">XCY</span>
         </span>
 
 HTML;
@@ -655,7 +655,7 @@ HTML;
             return self::$rates[$currency];
 
         global $wpdb;
-        $table_name = $wpdb->prefix.'turtlecoin_gateway_live_rates';
+        $table_name = $wpdb->prefix.'cypruscoin_gateway_live_rates';
         $query = $wpdb->prepare("SELECT rate FROM $table_name WHERE currency=%s", array($currency));
 
         $rate = $wpdb->get_row($query)->rate;
@@ -687,8 +687,8 @@ HTML;
         return $virtual_items == $cart_size;
     }
 
-    public static function format_turtlecoin($atomic_units) {
-        return sprintf(TURTLECOIN_GATEWAY_ATOMIC_UNITS_SPRINTF, $atomic_units / TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW);
+    public static function format_cypruscoin($atomic_units) {
+        return sprintf(CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_SPRINTF, $atomic_units / CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW);
     }
 
     public static function format_seconds_to_time($seconds)

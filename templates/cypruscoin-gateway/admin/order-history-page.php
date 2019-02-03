@@ -1,23 +1,23 @@
 <table class="striped" style="width:100%" cellspacing="0" cellpadding="5">
     <tr>
         <td>Exchange rate</td>
-        <td>1 TRTL = <?php echo $details['rate_formatted'].' '.$details['currency']; ?></td>
+        <td>1 XCY = <?php echo $details['rate_formatted'].' '.$details['currency']; ?></td>
     </tr>
     <tr>
         <td>Total amount</td>
-        <td><?php echo $details['amount_total_formatted']; ?> TRTL</td>
+        <td><?php echo $details['amount_total_formatted']; ?> XCY</td>
     </tr>
     <tr>
         <td>Total paid</td>
-        <td><?php echo $details['amount_paid_formatted']; ?> TRTL</td>
+        <td><?php echo $details['amount_paid_formatted']; ?> XCY</td>
     </tr>
     <tr>
         <td>Total due</td>
-        <td><?php echo $details['amount_due_formatted']; ?> TRTL</td>
+        <td><?php echo $details['amount_due_formatted']; ?> XCY</td>
     </tr>
     <tr>
         <td>Order age</td>
-        <td><?php echo Turtlecoin_Gateway::format_seconds_to_time($details['order_age']) ?> ago</td>
+        <td><?php echo Cypruscoin_Gateway::format_seconds_to_time($details['order_age']) ?> ago</td>
     </tr>
     <tr>
         <td>Order exipires</td>
@@ -75,7 +75,7 @@
             <a href="https://turtle.land/?hash=<?php echo $tx['txid']; ?>#blockchain_transaction" target="_blank"><?php echo $tx['txid']; ?></a>
         </td>
         <td><?php echo $tx['height']; ?></td>
-        <td><?php echo sprintf(TURTLECOIN_GATEWAY_ATOMIC_UNITS_SPRINTF, $tx['amount'] / TURTLECOIN_GATEWAY_ATOMIC_UNITS_POW); ?> TRTL</td>
+        <td><?php echo sprintf(CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_SPRINTF, $tx['amount'] / CYPRUSCOIN_GATEWAY_ATOMIC_UNITS_POW); ?> XCY</td>
     </tr>
     <?php endforeach; ?>
 </table>

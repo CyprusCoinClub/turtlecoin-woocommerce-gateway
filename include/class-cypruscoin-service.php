@@ -3,12 +3,12 @@
  * library.php
  *
  * @author Fexra <fexra@protonmail.com>
- * 
+ *
  * Donate TRTLuzAzNs1E1RBFhteX56A5353vyHuSJ5AYYQfoN97PNbcMDvwQo4pUWHs7SYpuD9ThvA7AD3r742kwTmWh5o9WFaB9JXH8evP
- * 
+ *
  * Reality is the concensus constructed between your neurons.
  */
-class Turtlecoin_Library {
+class Cypruscoin_Library {
     protected $url = null, $is_debug = false, $parameters_structure = 'array';
     protected $curl_options = array(
         CURLOPT_CONNECTTIMEOUT => 8,
@@ -85,7 +85,7 @@ class Turtlecoin_Library {
         $this->debug(' <br>Response: <br> <br> ' . $responseMessage . "\r\n", true);
 
         $responseDecoded = json_decode($responseMessage, true);
-	
+
 	    //Validate reponse
         $this->validate(empty($responseDecoded['id']), 'Invalid response data structure: ' . $responseMessage);
         $this->validate($responseDecoded['id'] != $requestId, 'Request id: ' . $requestId . ' is different from Response id: ' . $responseDecoded['id']);
@@ -100,16 +100,16 @@ class Turtlecoin_Library {
           $this->debug($errorMessage."\r\n", false);
 
           $errorMessage = "There has been an error processing your request, please contact the site administration.".
-          
+
             $this->validate(!is_null($responseDecoded['error']), $errorMessage);
         }
-       
+
         return $responseDecoded['result'];
     }
 
     protected function debug($pAdd, $pShow = false) {
         static $debug, $startTime;
- 
+
         if(false === $this->is_debug) {
             return;
         }
@@ -117,7 +117,7 @@ class Turtlecoin_Library {
         $debug .= $pAdd;
 
         $startTime = empty($startTime) ? array_sum(explode(' ', microtime())) : $startTime;
-        
+
         if (true === $pShow and !empty($debug)) {
 
             $endTime = array_sum(explode(' ', microtime()));
@@ -184,7 +184,7 @@ class Turtlecoin_Library {
 
 
 
-    
+
     public function getPayment($lastBlockHash, $paymentId) {
         $payment_param = array('blockCount' => 3, 'blockHash' => $lastBlockHash, 'paymentId' => $paymentId);
         $get_payments = $this->_run('getTransactions', $payment_param);
@@ -198,17 +198,17 @@ class Turtlecoin_Library {
         $get_integrated = $this->_run('createIntegratedAddress', $params);
 
         return $get_integrated;
-        
+
     }
-    
-    
+
+
 
 
     public function get_payments($payment_id)
     {
 
         $height = $this->getHeight();
-        
+
         $get_payments_parameters = array(
             'firstBlockIndex' => $height - 100,
             'blockCount' => 100,
@@ -217,7 +217,7 @@ class Turtlecoin_Library {
         $get_payments = $this->_run('getTransactions', $get_payments_parameters);
 
         $payments = array();
-        
+
         foreach($get_payments['items'] as $item) {
             foreach($item['transactions'] as $itemm) {
                 if($itemm['paymentId'] === $payment_id) {
@@ -255,7 +255,7 @@ class Turtlecoin_Library {
 
         return $this->get_payments($payment_id);
 
-        
+
         $confirmed_payments = $this->get_payments($payment_id);
         $pool_payments = $this->get_pool_payments($payment_id);
         return array_merge($pool_payments, $confirmed_payments);

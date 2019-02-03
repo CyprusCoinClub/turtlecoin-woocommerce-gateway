@@ -1,19 +1,19 @@
 <?php
 /*
  * Copyright (c) 2018, Ryo Currency Project
- * Admin interface for TurtleCoin gateway
+ * Admin interface for CyprusCoin gateway
  * Authors: mosu-forge
  */
 
 defined( 'ABSPATH' ) || exit;
 
-require_once('class-turtlecoin-admin-payments-list.php');
+require_once('class-cypruscoin-admin-payments-list.php');
 
-if (class_exists('TurtleCoin_Admin_Interface', false)) {
-    return new TurtleCoin_Admin_Interface();
+if (class_exists('CyprusCoin_Admin_Interface', false)) {
+    return new CyprusCoin_Admin_Interface();
 }
 
-class TurtleCoin_Admin_Interface {
+class CyprusCoin_Admin_Interface {
 
     public function __construct() {
         add_action('add_meta_boxes', array($this, 'meta_boxes'));
@@ -26,8 +26,8 @@ class TurtleCoin_Admin_Interface {
      */
     public function meta_boxes() {
         add_meta_box(
-            'turtlecoin_admin_order_details',
-            __('TurtleCoin Gateway','turtlecoin_gateway'),
+            'cypruscoin_admin_order_details',
+            __('CyprusCoin Gateway','cypruscoin_gateway'),
             array($this, 'meta_box_order_details'),
             'shop_order',
             'normal',
@@ -39,7 +39,7 @@ class TurtleCoin_Admin_Interface {
      * Meta box for order page
      */
     public function meta_box_order_details($order) {
-        TurtleCoin_Gateway::admin_order_page($order);
+        CyprusCoin_Gateway::admin_order_page($order);
     }
 
     /**
@@ -47,30 +47,30 @@ class TurtleCoin_Admin_Interface {
      */
     public function admin_menu() {
         add_menu_page(
-            __('TurtleCoin', 'turtlecoin_gateway'),
-            __('TurtleCoin', 'turtlecoin_gateway'),
+            __('CyprusCoin', 'cypruscoin_gateway'),
+            __('CyprusCoin', 'cypruscoin_gateway'),
             'manage_woocommerce',
-            'turtlecoin_gateway',
+            'cypruscoin_gateway',
             array($this, 'orders_page'),
-            TURTLECOIN_GATEWAY_PLUGIN_URL.'/assets/images/turtlecoin-icon-admin.png',
+            CYPRUSCOIN_GATEWAY_PLUGIN_URL.'/assets/images/cypruscoin-icon-admin.png',
             56 // Position on menu, woocommerce has 55.5, products has 55.6
         );
 
         add_submenu_page(
-            'turtlecoin_gateway',
-            __('Payments', 'turtlecoin_gateway'),
-            __('Payments', 'turtlecoin_gateway'),
+            'cypruscoin_gateway',
+            __('Payments', 'cypruscoin_gateway'),
+            __('Payments', 'cypruscoin_gateway'),
             'manage_woocommerce',
-            'turtlecoin_gateway_payments',
+            'cypruscoin_gateway_payments',
             array($this, 'payments_page')
         );
 
         $settings_page = add_submenu_page(
-            'turtlecoin_gateway',
-            __('Settings', 'turtlecoin_gateway'),
-            __('Settings', 'turtlecoin_gateway'),
+            'cypruscoin_gateway',
+            __('Settings', 'cypruscoin_gateway'),
+            __('Settings', 'cypruscoin_gateway'),
             'manage_options',
-            'turtlecoin_gateway_settings',
+            'cypruscoin_gateway_settings',
             array($this, 'settings_page')
         );
         add_action('load-'.$settings_page, array($this, 'settings_page_init'));
@@ -81,22 +81,22 @@ class TurtleCoin_Admin_Interface {
      */
     public function admin_menu_update() {
         global $submenu;
-        if (isset($submenu['turtlecoin_gateway'])) {
-            unset($submenu['turtlecoin_gateway'][0]);
+        if (isset($submenu['cypruscoin_gateway'])) {
+            unset($submenu['cypruscoin_gateway'][0]);
         }
     }
 
     /**
-     * TurtleCoin payments page
+     * CyprusCoin payments page
      */
     public function payments_page() {
-        $payments_list = new TurtleCoin_Admin_Payments_List();
+        $payments_list = new CyprusCoin_Admin_Payments_List();
         $payments_list->prepare_items();
         $payments_list->display();
     }
 
     /**
-     * TurtleCoin settings page
+     * CyprusCoin settings page
      */
     public function settings_page() {
         WC_Admin_Settings::output();
@@ -105,7 +105,7 @@ class TurtleCoin_Admin_Interface {
     public function settings_page_init() {
         global $current_tab, $current_section;
 
-        $current_section = 'turtlecoin_gateway';
+        $current_section = 'cypruscoin_gateway';
         $current_tab = 'checkout';
 
         // Include settings pages.
@@ -130,4 +130,4 @@ class TurtleCoin_Admin_Interface {
 
 }
 
-return new TurtleCoin_Admin_Interface();
+return new CyprusCoin_Admin_Interface();

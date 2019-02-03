@@ -73,9 +73,9 @@ Will display:
 
 This will display a badge showing that you accept TurtleCoin-currency.
 
-`[turtlecoin-accepted-here]`
+`[cypruscoin-accepted-here]`
 
-![TurtleCoin Accepted Here](/assets/images/turtlecoin-accepted-here.png?raw=true "TurtleCoin Accepted Here")
+![TurtleCoin Accepted Here](/assets/images/cypruscoin-accepted-here.png?raw=true "CyprusCoin Accepted Here")
 
 ## Donations
 
