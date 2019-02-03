@@ -49,21 +49,21 @@ return array(
         'desc_tip' => __('CyprusCoin Wallet Address (XCY)', 'cypruscoin_gateway')
     ),
     'daemon_host' => array(
-        'title' => __('Turtle-Service Host/IP', 'cypruscoin_gateway'),
+        'title' => __('Cyprus-Service Host/IP', 'cypruscoin_gateway'),
         'type' => 'text',
-        'desc_tip' => __('This is the turtle-service Host/IP to authorize the payment with', 'cypruscoin_gateway'),
+        'desc_tip' => __('This is the cyprus-service Host/IP to authorize the payment with', 'cypruscoin_gateway'),
         'default' => '127.0.0.1',
     ),
     'daemon_port' => array(
-        'title' => __('Turtle-Service Port', 'cypruscoin_gateway'),
+        'title' => __('Cyprus-Service Port', 'cypruscoin_gateway'),
         'type' => __('number'),
-        'desc_tip' => __('This is the turtle-service port to authorize the payment with', 'cypruscoin_gateway'),
+        'desc_tip' => __('This is the cyprus-service port to authorize the payment with', 'cypruscoin_gateway'),
         'default' => '8070',
     ),
     'daemon_password' => array(
-        'title' => __('Turtle-Service Password', 'cypruscoin_gateway'),
+        'title' => __('Cyprus-Service Password', 'cypruscoin_gateway'),
         'type' => 'text',
-        'desc_tip' => __('This is the turtle-service password to authorize the payment with', 'cypruscoin_gateway'),
+        'desc_tip' => __('This is the cyprus-service password to authorize the payment with', 'cypruscoin_gateway'),
         'default' => '',
     ),
     'show_qr' => array(

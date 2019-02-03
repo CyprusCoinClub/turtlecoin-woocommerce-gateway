@@ -64,16 +64,14 @@ This will display the price of TurtleCoin in the selected currency. If no curren
 ```
 Will display:
 ```
-1 TRTL = 0.00000149 LTC
-1 TRTL = 0.00003815 USD
+1 XCY = 0.00000149 LTC
+1 XCY = 0.00003815 USD
 ```
 
 
 #### TurtleCoin accepted here badge
 
 This will display a badge showing that you accept TurtleCoin-currency.
-
-`[cypruscoin-accepted-here]`
 
 ![TurtleCoin Accepted Here](/assets/images/cypruscoin-accepted-here.png?raw=true "CyprusCoin Accepted Here")
 
